@@ -7,15 +7,7 @@ export const signIn = async (req: Request, res: Response) => {
     if(typeof email === "undefined" || typeof password === "undefined") {
         res.status(400).send({
             status: 400,
-            message: "the values are undefined!"
-        });
-        return;
-    }
-
-    if(!email || !password) {
-        res.status(400).send({
-            status: 400,
-            message: "Missing required Fields!"
+            message: "The values are undefined!"
         });
         return;
     }
@@ -23,7 +15,7 @@ export const signIn = async (req: Request, res: Response) => {
     if(typeof email !== "string" || typeof password !== "string") {
         res.status(400).send({
             status: 400,
-            message: "the values aren't strings!"
+            message: "The values aren't strings!"
         });
         return;
     }

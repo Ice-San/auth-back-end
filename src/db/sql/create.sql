@@ -99,6 +99,28 @@ VALUES(2);
 INSERT INTO user_permissions(up_level)
 VALUES(3);
 
+-- === VIEWS ===
+
+-- 1. View All Users
+
+CREATE VIEW view_all_users AS
+SELECT 
+	u.u_id AS user_id,
+	pe.p_first_name AS first_name, 
+	pe.p_last_name AS last_name, 
+	u.u_username AS username,
+	u.u_email AS email,
+	u.u_career AS career, 
+	u.u_location AS user_location, 
+	ut.ut_type AS user_type, 
+	up.up_level AS permission_level, 
+	acc.createdAt AS account_created_at
+FROM accounts acc
+INNER JOIN users u ON acc.u_id = u.u_id
+INNER JOIN persons pe ON u.p_id = pe.p_id
+INNER JOIN user_types ut ON acc.ut_id = ut.ut_id
+INNER JOIN user_permissions up ON acc.up_id = up.up_id;
+
 -- === FUNCTIONS ===
 
 -- 1. Get User ID
@@ -196,27 +218,21 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- === VIEWS ===
+-- 5. SignIn
 
--- 1. View All Users
+CREATE OR REPLACE FUNCTION sign_in(user_email VARCHAR(100), user_password VARCHAR(255))
+RETURNS INT AS $$
+DECLARE
+	user_id INT;
+BEGIN
+	SELECT u.u_id INTO user_id
+	FROM users AS u
+	INNER JOIN passwords AS pw ON pw.u_id = u.u_id
+	WHERE u.u_email = user_email AND pw.pw_hashed_password = user_password;
 
-CREATE VIEW view_all_users AS
-SELECT 
-	u.u_id AS user_id, 
-	pe.p_first_name AS first_name, 
-	pe.p_last_name AS last_name, 
-	u.u_username AS username, 
-	u.u_email AS email, 
-	u.u_career AS career, 
-	u.u_location AS user_location, 
-	ut.ut_type AS user_type, 
-	up.up_level AS permission_level, 
-	acc.createdAt AS account_created_at
-FROM accounts acc
-INNER JOIN users u ON acc.u_id = u.u_id
-INNER JOIN persons pe ON u.p_id = pe.p_id
-INNER JOIN user_types ut ON acc.ut_id = ut.ut_id
-INNER JOIN user_permissions up ON acc.up_id = up.up_id;
+	RETURN user_id;
+END;
+$$ LANGUAGE plpgsql;
 
 -- === CODE TO TEST DB ===
 
@@ -265,5 +281,3 @@ SELECT create_user(
     'user', 
     3
 );
-
-SELECT get_user('lara@example.com');

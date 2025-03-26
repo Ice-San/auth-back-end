@@ -4,7 +4,7 @@
   "description": "an amazing aplication to make auths",
   "main": "./src/index",
   "scripts": {
-    "dev": "ts-node src/index.ts",
+    "watch": "ts-node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "ice-san",

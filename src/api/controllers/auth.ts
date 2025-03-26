@@ -12,7 +12,7 @@ export const signIn = async (req: Request, res: Response) => {
         return;
     }
 
-    if(typeof email !== "string" || typeof password !== "string") {
+    if(typeof email !== "string" && typeof password !== "string") {
         res.status(400).send({
             status: 400,
             message: "The values aren't strings!"

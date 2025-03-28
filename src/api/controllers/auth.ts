@@ -21,7 +21,7 @@ export const signIn = async (req: Request, res: Response) => {
     }
 
     try {
-        const query: string = 'SELECT sign_in($1, $2)';
+        const query: string = 'SELECT * FROM sign_in($1, $2)';
         const values: string[] = [email, password];
         const result = await client.query(query, values);
         const userId: string = result.rows[0]?.u_id;

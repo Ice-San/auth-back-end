@@ -10,9 +10,11 @@
   "author": "ice-san",
   "license": "ISC",
   "devDependencies": {
+    "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.2",
     "@types/pg": "^8.11.10",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",

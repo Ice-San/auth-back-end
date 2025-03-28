@@ -220,19 +220,18 @@ $$ LANGUAGE plpgsql;
 
 -- 5. SignIn
 
+DROP FUNCTION sign_in;
 CREATE OR REPLACE FUNCTION sign_in(user_email VARCHAR(100), user_password VARCHAR(255))
-RETURNS INT AS $$
-DECLARE
-	user_id INT;
+RETURNS TABLE(u_id INT) AS $$
 BEGIN
-	SELECT u.u_id INTO user_id
-	FROM users AS u
-	INNER JOIN passwords AS pw ON pw.u_id = u.u_id
-	WHERE u.u_email = user_email AND pw.pw_hashed_password = user_password;
-
-	RETURN user_id;
+	RETURN QUERY
+		SELECT u.u_id
+		FROM users AS u
+		INNER JOIN passwords AS pw ON pw.u_id = u.u_id
+		WHERE u.u_email = user_email AND pw.pw_hashed_password = user_password;
 END;
 $$ LANGUAGE plpgsql;
+
 
 -- === CODE TO TEST DB ===
 

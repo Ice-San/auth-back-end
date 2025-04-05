@@ -2,9 +2,9 @@ import client from "@/db/config";
 import { Request, Response } from "express";
 
 export const createUser = async (req: Request, res: Response) => {
-    const { username, email, password, confirmPassword, userType, userPermissions } = req.body;
+    const { username, email, password, confirmPassword } = req.body;
 
-    if(!username || !email || !password || !confirmPassword || !userType || !userPermissions) {
+    if(!username || !email || !password || !confirmPassword) {
         res.status(400).send({
             status: 400,
             message: 'Missing required fields!'
@@ -12,7 +12,7 @@ export const createUser = async (req: Request, res: Response) => {
         return;
     }
 
-    if(typeof username === 'undefined' || typeof email === 'undefined' || typeof password === 'undefined' || typeof confirmPassword === 'undefined' || typeof userType === 'undefined' || typeof userPermissions === 'undefined') {
+    if(typeof username === 'undefined' || typeof email === 'undefined' || typeof password === 'undefined' || typeof confirmPassword === 'undefined') {
         res.status(400).send({
             status: 400,
             message: 'The values are undefined!'
@@ -20,18 +20,10 @@ export const createUser = async (req: Request, res: Response) => {
         return;
     }
 
-    if(typeof username !== 'string' || typeof email !== 'string' || typeof password !== 'string' || typeof confirmPassword !== 'string' || typeof userType !== 'string') {
+    if(typeof username !== 'string' || typeof email !== 'string' || typeof password !== 'string' || typeof confirmPassword !== 'string') {
         res.status(400).send({
             status: 400,
             message: 'The values aren\'t strings!'
-        });
-        return;
-    }
-
-    if(typeof userPermissions !== 'number') {
-        res.status(400).send({
-            status: 400,
-            message: 'The values aren\'t numbers!'
         });
         return;
     }
@@ -45,13 +37,11 @@ export const createUser = async (req: Request, res: Response) => {
     }
 
     try {
-        const query = `SELECT create_user($1, $2, '', '', '', $3, $4, $5)`;
+        const query = `SELECT create_user($1, $2, '', '', '', $3, 'user', 3)`;
         const values = [
             username,
             email,
             password,
-            userType,
-            userPermissions
         ];
 
         const result = await client.query(query, values);

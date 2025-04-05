@@ -169,7 +169,7 @@ CREATE OR REPLACE FUNCTION create_user(
     t VARCHAR(10),
     l INT
 ) 
-RETURNS VOID AS
+RETURNS TEXT AS
 $$
 DECLARE
     user_exists INT;
@@ -181,7 +181,7 @@ BEGIN
     SELECT COUNT(*) INTO user_exists FROM users WHERE u_email = e;
 
     IF user_exists > 0 THEN
-        RETURN;
+        RETURN 'User already exists!';
     END IF;
 
     -- Insert into users
@@ -202,6 +202,8 @@ BEGIN
     -- Insert into accounts
     INSERT INTO accounts (u_id, ut_id, up_id)
     VALUES (u_id, ut_admin_id, up_admin_id);
+
+	RETURN '';
 END;
 $$ LANGUAGE plpgsql;
 

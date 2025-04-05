@@ -2,23 +2,53 @@ import client from "@/db/config";
 import { Request, Response } from "express";
 
 export const createUser = async (req: Request, res: Response) => {
-    const { username, email, firstName, lastName, genre, password, userType, userPermissions } = req.body;
+    const { username, email, password, confirmPassword, userType, userPermissions } = req.body;
 
-    if(!username || !email || !password || !userType || !userPermissions) {
+    if(!username || !email || !password || !confirmPassword || !userType || !userPermissions) {
         res.status(400).send({
             status: 400,
             message: 'Missing required fields!'
         });
+        return;
+    }
+
+    if(typeof username === 'undefined' || typeof email === 'undefined' || typeof password === 'undefined' || typeof confirmPassword === 'undefined' || typeof userType === 'undefined' || typeof userPermissions === 'undefined') {
+        res.status(400).send({
+            status: 400,
+            message: 'The values are undefined!'
+        });
+        return;
+    }
+
+    if(typeof username !== 'string' || typeof email !== 'string' || typeof password !== 'string' || typeof confirmPassword !== 'string' || typeof userType !== 'string') {
+        res.status(400).send({
+            status: 400,
+            message: 'The values aren\'t strings!'
+        });
+        return;
+    }
+
+    if(typeof userPermissions !== 'number') {
+        res.status(400).send({
+            status: 400,
+            message: 'The values aren\'t numbers!'
+        });
+        return;
+    }
+
+    if(password !== confirmPassword) {
+        res.status(400).send({
+            status: 400,
+            message: 'Passwords don\'t matchs!'
+        });
+        return;
     }
 
     try {
-        const query = `SELECT create_user($1, $2, $3, $4, $5, $6, $7, $8)`;
+        const query = `SELECT create_user($1, $2, '', '', '', $3, $4, $5)`;
         const values = [
             username,
             email,
-            firstName || null,
-            lastName || null,
-            genre || null,
             password,
             userType,
             userPermissions
@@ -26,13 +56,23 @@ export const createUser = async (req: Request, res: Response) => {
 
         const result = await client.query(query, values);
         const data = result.rows[0];
+        const userExists = data.create_user;
+
+        if(userExists) {
+            res.status(409).send({
+                status: 409,
+                message: 'User already exists!'
+            });
+            return;
+        }
 
         res.status(201).send({
             status: 201,
             message: 'User Created Sucessfully!',
-            data
-        })
-        
+            data: {
+                success: true,
+            }
+        });
     } catch (err) {
         console.log(err);
         
@@ -41,6 +81,7 @@ export const createUser = async (req: Request, res: Response) => {
             message: 'Error creating user...'
         });
     }
+    return;
 }
 
 export const getUsers = async (req: Request, res: Response) => {

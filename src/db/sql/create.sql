@@ -169,21 +169,13 @@ CREATE OR REPLACE FUNCTION create_user(
     t VARCHAR(10),
     l INT
 ) 
-RETURNS TEXT AS
+RETURNS SETOF view_all_users AS
 $$
 DECLARE
-    user_exists INT;
     u_id INT;
     ut_admin_id INT;
     up_admin_id INT;
 BEGIN
-    -- Check if the user already exists
-    SELECT COUNT(*) INTO user_exists FROM users WHERE u_email = e;
-
-    IF user_exists > 0 THEN
-        RETURN 'User already exists!';
-    END IF;
-
     -- Insert into users
     INSERT INTO users (u_username, u_email, p_id)
     VALUES (un, e, create_person(n, ln, g))
@@ -203,7 +195,7 @@ BEGIN
     INSERT INTO accounts (u_id, ut_id, up_id)
     VALUES (u_id, ut_admin_id, up_admin_id);
 
-	RETURN '';
+	RETURN QUERY SELECT * FROM view_all_users WHERE email = e;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -222,7 +214,6 @@ $$ LANGUAGE plpgsql;
 
 -- 5. SignIn
 
-DROP FUNCTION sign_in;
 CREATE OR REPLACE FUNCTION sign_in(user_email VARCHAR(100), user_password VARCHAR(255))
 RETURNS TABLE(u_id INT) AS $$
 BEGIN
@@ -231,6 +222,18 @@ BEGIN
 		FROM users AS u
 		INNER JOIN passwords AS pw ON pw.u_id = u.u_id
 		WHERE u.u_email = user_email AND pw.pw_hashed_password = user_password;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 6. Check User Exists
+
+CREATE OR REPLACE FUNCTION user_exist(e VARCHAR(100))
+RETURNS INT AS $$
+DECLARE user_exist INT;
+BEGIN
+	SELECT COUNT(*) INTO user_exist FROM users WHERE u_email = e;
+
+	RETURN user_exist;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -279,6 +282,18 @@ SELECT create_user(
     'Marçal', 
     'Female', 
     'laraomg123', 
+    'user', 
+    3
+);
+
+
+SELECT * FROM create_user(
+    'test24', 
+    'test24@example.com', 
+    'Lara', 
+    'Marçal', 
+    'MALE', 
+    '123456', 
     'user', 
     3
 );

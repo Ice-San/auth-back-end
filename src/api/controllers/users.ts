@@ -37,18 +37,10 @@ export const createUser = async (req: Request, res: Response) => {
     }
 
     try {
-        const query = `SELECT create_user($1, $2, '', '', '', $3, 'user', 3)`;
-        const values = [
-            username,
-            email,
-            password,
-        ];
+        const queryUserExist = await client.query(`SELECT user_exist('${email}')`);
+        const { user_exist } = queryUserExist.rows[0];
 
-        const result = await client.query(query, values);
-        const data = result.rows[0];
-        const userExists = data.create_user;
-
-        if(userExists) {
+        if(user_exist === 1) {
             res.status(409).send({
                 status: 409,
                 message: 'User already exists!'
@@ -56,11 +48,21 @@ export const createUser = async (req: Request, res: Response) => {
             return;
         }
 
+        const query = `SELECT * FROM create_user($1, $2, '', '', '', $3, 'user', 3)`;
+        const values = [
+            username,
+            email,
+            password,
+        ];
+        const result = await client.query(query, values);
+        const userId: string = result.rows[0].user_id;
+
         res.status(201).send({
             status: 201,
             message: 'User Created Sucessfully!',
             data: {
                 success: true,
+                userId
             }
         });
     } catch (err) {
